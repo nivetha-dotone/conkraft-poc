@@ -108,4 +108,8 @@ public class GatePassToOnBoard {
     private String onboardingType;
     private String accommodation;
     private String eSICIPNumber;
+    private String SUBBUSINESSTYPE;
+    private String BUSINESSUNIT;
+    private String PARENTENTITY;
+    private String BUSINESSTYPE;
 }
