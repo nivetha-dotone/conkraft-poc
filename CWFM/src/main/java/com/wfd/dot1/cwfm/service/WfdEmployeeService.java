@@ -1,0 +1,1058 @@
+
+
+package com.wfd.dot1.cwfm.service;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wfd.dot1.cwfm.dto.*;
+import com.wfd.dot1.cwfm.pojo.MasterUser;
+import com.wfd.dot1.cwfm.util.QueryFileWatcher;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class WfdEmployeeService {
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+    private final WfdAuthService wfdAuthService;
+
+    public String getCreateSkillsUrl() {
+        return QueryFileWatcher.getQuery("getCreateSkillsUrl");
+    }
+    public String getCreateJobUrl() {
+        return QueryFileWatcher.getQuery("getURLJOBCREATE");
+    }
+
+    public String getCreateLaborCatEntryUrl() {
+        return QueryFileWatcher.getQuery("getCreateLaborsUrl");
+    }
+
+    public String getCreateProfUrl() {
+        return QueryFileWatcher.getQuery("getCreateProfUrl");
+    }
+
+    public String getAssignCertiUrl() {
+        return QueryFileWatcher.getQuery("getPutAssignCertifcUrl");
+    }
+
+    public String getfindProfUrl() {
+        return QueryFileWatcher.getQuery("getFindProfUrl");
+    }
+
+    public String getCreateCertificateUrl() {
+        return QueryFileWatcher.getQuery("getCreateCertifcUrl");
+    }
+
+    public String getupdateEmpStatusTRACURL() {
+        return QueryFileWatcher.getQuery("getupdateempstatusUrl");
+    }
+
+    public String getfindCertifUrl() {
+        return QueryFileWatcher.getQuery("getFindCertifcUrl");
+    }
+
+    public String getfindSkillsUrl() {
+        return QueryFileWatcher.getQuery("getFindSkillsUrl");
+    }
+    public String getfindJobUrl() {
+        return QueryFileWatcher.getQuery("getFindJobUrl");
+    }
+
+    public String getfindLaborCatUrl() {
+        return QueryFileWatcher.getQuery("getFindLaborCatUrl");
+    }
+    public String getDetailsByPersonKey() {
+        return QueryFileWatcher.getQuery("getDetailsByPersonKey");
+    }
+
+
+    public WfdEmployeeService(RestTemplate restTemplate, ObjectMapper objectMapper, WfdAuthService wfdAuthService) {
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
+        this.wfdAuthService = wfdAuthService;
+    }
+
+    public boolean verifyProfInWFD(String name) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getfindProfUrl() + name;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.GET, entity, String.class, new Object[0]);
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception var8) {
+            return false;
+        }
+    }
+
+    public boolean verifyCertiInWFD(String name) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getfindCertifUrl() + name;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.GET, entity, String.class, new Object[0]);
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception var8) {
+            return false;
+        }
+    }
+
+    public boolean verifySkillsInWFD(String name) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getfindSkillsUrl() + name;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.GET, entity, String.class, new Object[0]);
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception var8) {
+            return false;
+        }
+    }
+
+    public boolean verifyJobInWFD(String name,String date) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getfindJobUrl() + name+"&date="+date;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.GET, entity, String.class, new Object[0]);
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception var8) {
+            return false;
+        }
+    }
+
+    public boolean verifyLaborCatEnInWFD(String name) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+
+            String jsonBody = "{\n" +
+                    "  \"where\": {\n" +
+                    "    \"entries\": {\n" +
+                    "      \"qualifiers\": [\"" + name + "\"]\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            String url = this.getHostName() + this.getfindLaborCatUrl();
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            String responseBody = response.getBody();
+
+            // ✅ Check error inside response
+            if (responseBody != null && responseBody.contains("laborcategory-common:107")) {
+                return false; // Not found
+            }
+
+            return true; // Found
+
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+
+    public String createSkillsInWFD(PostSkillWfd dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getCreateSkillsUrl();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while creating skill: " + e.getMessage();
+        }
+    }
+
+    public String createJobInWFD(PostJobWfd dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getCreateJobUrl();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while creating skill: " + e.getMessage();
+        }
+    }
+
+    public String createLaborCatInWFD(PostLaborCatDTO dto) {
+        try {
+
+            ArrayList<PostLaborCatDTO> addList = new ArrayList<>();
+            addList.add(dto);
+
+            String jsonBody = this.objectMapper.writeValueAsString(addList);
+            String accessToken = this.wfdAuthService.getAccessToken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            String url = this.getHostName() + this.getCreateLaborCatEntryUrl();
+
+            ResponseEntity<String> response = this.restTemplate.exchange(
+                    url, HttpMethod.POST, entity, String.class);
+
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return "SUCCESS:" + response.getBody();
+            } else {
+                return "FAILED:" + response.getBody();
+            }
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return "FAILED:" + e.getResponseBodyAsString();
+        } catch (Exception e) {
+            return "FAILED:" + e.getMessage();
+        }
+    }
+    public String createProfInWFD(ProficiencyDTO dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getCreateProfUrl();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while creating skill: " + e.getMessage();
+        }
+    }
+
+    public String AssignCertificateInWFD(CertificationAssignmentRequestDTO dto, String gmID) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            Integer personKey = this.getPersonKey(accessToken, gmID);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getAssignCertiUrl() + personKey;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while creating skill: " + e.getMessage();
+        }
+    }
+
+    public String AssignSkillsProInWFD(PersonSkillAssignmentDTO dto, String gmID) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            Integer personKey = this.getPersonKey(accessToken, gmID);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getUpdateSkillURL() + personKey;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while creating skill: " + e.getMessage();
+        }
+    }
+
+    public String createCertiInWFD(PostSkillWfd dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getCreateCertificateUrl();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while creating Certification: " + e.getMessage();
+        }
+    }
+
+    public WfdResponse updateEmpStatusTarminateSch(ActiveEmpStatusDto dto, String gpId) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            Integer personKey = this.getPersonKey(accessToken, gpId);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getupdateEmpStatusTRACURL() + personKey;
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, new Object[0]);
+            return response.getStatusCode().is2xxSuccessful() ? new WfdResponse(true, "Updated Successfully") : new WfdResponse(false, (String)response.getBody());
+        } catch (HttpStatusCodeException e) {
+            return new WfdResponse(false, e.getResponseBodyAsString());
+        } catch (Exception e) {
+            return new WfdResponse(false, "Error while updating employment status: " + e.getMessage());
+        }
+    }
+
+    public String updateEmpStatusTarminate(ActiveEmpStatusDto dto, String gpId) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            Integer personKey = this.getPersonKey(accessToken, gpId);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getupdateEmpStatusTRACURL() + personKey;
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, new Object[0]);
+            return (String)response.getBody();
+        } catch (HttpStatusCodeException e) {
+            return e.getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error while updating employment status: " + e.getMessage();
+        }
+    }
+
+    public String getISSANDORPOC() {
+        return QueryFileWatcher.getQuery("ISSAND");
+    }
+
+    public String getcheckHost() {
+        try {
+            String issandorpoc = getISSANDORPOC();
+
+            if (issandorpoc != null) {
+                issandorpoc = issandorpoc.trim();
+            }
+            if ("yes".equalsIgnoreCase(issandorpoc)) {
+                return QueryFileWatcher.getQuery("HostName");
+            } else if ("no".equalsIgnoreCase(issandorpoc)) {
+                return QueryFileWatcher.getQuery("HostNamePOC");
+            } else {
+                throw new IllegalArgumentException("Invalid value for ISSAND in query properties file : " + issandorpoc);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public String getAuthToken(String username, String password){
+        try{
+            return wfdAuthService.getAccessCheckup( username,  password);
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public Object getAuthCheck(String username, String password) {
+        try {
+            String authCheck = wfdAuthService.getAccessCheckup(username, password);
+
+            if ("successful".equalsIgnoreCase(authCheck)) {
+
+                Integer personKey = getPersonKeyBasedonUserName(username);
+
+                if (personKey != null) {
+                    return getUserDetailsByPersonKey(personKey);
+                }
+
+                return null;
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public MasterUser getAuthCheckApp(String username, String password) {
+        try {
+            String authCheck = wfdAuthService.getAccessCheckup(username, password);
+
+            if ("successful".equalsIgnoreCase(authCheck)) {
+
+                Integer personKey = getPersonKeyBasedonUserName(username);
+
+                if (personKey != null) {
+                    return getUserDetailsByPersonKeyapp(personKey);
+
+
+                }
+
+                return null;
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Object getDeatilsPersonViaUKGAUTH(String username) {
+        try {
+            String authCheck = "successful";
+
+            if ("successful".equalsIgnoreCase(authCheck)) {
+
+                Integer personKey = getPersonKeyBasedonUserName(username);
+
+                if (personKey != null) {
+                    return getUserDetailsByPersonKey(personKey);
+                }
+
+                return null;
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    public MasterUser getUserDetailsByPersonKey(Integer personKey) {
+        try {
+            String url = getHostName()+getDetailsByPersonKey()+ personKey;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String accessToken = this.wfdAuthService.getAccessToken();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response =
+                    restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            JsonNode root = objectMapper.readTree(response.getBody());
+
+            MasterUser user = new MasterUser();
+
+            // ✅ userAccount
+            user.setUserAccount(
+                    root.path("user")
+                            .path("userAccount")
+                            .path("userName")
+                            .asText(null)
+            );
+
+            // ✅ firstName, lastName, fullName
+            JsonNode personNode = root.path("personInformation").path("person");
+
+            String rawName = personNode.path("lastName").asText("").trim();
+
+            if (rawName.isEmpty()) {
+                rawName = "NA";
+            }
+
+            String[] parts = rawName.split("\\s+");
+
+            String firstName = "";
+            String lastName = "";
+
+            if (parts.length == 1) {
+                // 🔹 1 word → split into 2 parts
+                String word = parts[0];
+
+                if (word.length() <= 3) {
+                    // very short name → keep as firstName only
+                    firstName = word;
+                    lastName = "";
+                } else {
+                    int mid = word.length() / 2;
+                    firstName = word.substring(0, mid);
+                    lastName = word.substring(mid);
+                }
+
+            } else if (parts.length == 2) {
+                // 🔹 2 words → direct mapping
+                firstName = parts[0];
+                lastName = parts[1];
+
+            } else {
+
+                firstName = parts[0] + " " + parts[1];
+
+                StringBuilder ln = new StringBuilder();
+                for (int i = 2; i < parts.length; i++) {
+                    ln.append(parts[i]).append(" ");
+                }
+                lastName = ln.toString().trim();
+            }
+
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setFullName((firstName + " " + lastName).trim());
+
+            user.setFullName(personNode.path("fullName").asText(" "));
+            user.setStatus("A");
+            // ✅ contactNumber
+            JsonNode phoneArray = root.path("personInformation").path("telephoneNumbers");
+            if (phoneArray.isArray() && phoneArray.size() > 0) {
+                user.setContactNumber(phoneArray.get(0).path("phoneNumber").asText(" "));
+            }
+            // ✅ EmailId address
+            JsonNode emailArray = root.path("personInformation").path("emailAddresses");
+            if (emailArray.isArray() && emailArray.size() > 0) {
+                user.setEmailId(emailArray.get(0).path("address").asText(" "));
+            }
+
+
+
+
+            return user;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user details", e);
+        }
+    }
+
+
+    public MasterUser getUserDetailsByPersonKeyapp(Integer personKey) {
+        try {
+            String url = getHostName()+getDetailsByPersonKey()+ personKey;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String accessToken = this.wfdAuthService.getAccessToken();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response =
+                    restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            JsonNode root = objectMapper.readTree(response.getBody());
+
+            MasterUser user = new MasterUser();
+
+            // ✅ userAccount
+            user.setUserAccount(
+                    root.path("user")
+                            .path("userAccount")
+                            .path("userName")
+                            .asText(null)
+            );
+
+            // ✅ firstName, lastName, fullName
+            JsonNode personNode = root.path("personInformation").path("person");
+
+            String rawName = personNode.path("lastName").asText("").trim();
+
+            if (rawName.isEmpty()) {
+                rawName = "NA";
+            }
+
+            String[] parts = rawName.split("\\s+");
+
+            String firstName = "";
+            String lastName = "";
+
+            if (parts.length == 1) {
+                // 🔹 1 word → split into 2 parts
+                String word = parts[0];
+
+                if (word.length() <= 3) {
+                    // very short name → keep as firstName only
+                    firstName = word;
+                    lastName = "";
+                } else {
+                    int mid = word.length() / 2;
+                    firstName = word.substring(0, mid);
+                    lastName = word.substring(mid);
+                }
+
+            } else if (parts.length == 2) {
+                // 🔹 2 words → direct mapping
+                firstName = parts[0];
+                lastName = parts[1];
+
+            } else {
+
+                firstName = parts[0] + " " + parts[1];
+
+                StringBuilder ln = new StringBuilder();
+                for (int i = 2; i < parts.length; i++) {
+                    ln.append(parts[i]).append(" ");
+                }
+                lastName = ln.toString().trim();
+            }
+
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setFullName((firstName + " " + lastName).trim());
+
+            user.setFullName(personNode.path("fullName").asText(" "));
+            user.setStatus("A");
+            // ✅ contactNumber
+            JsonNode phoneArray = root.path("personInformation").path("telephoneNumbers");
+            if (phoneArray.isArray() && phoneArray.size() > 0) {
+                user.setContactNumber(phoneArray.get(0).path("phoneNumber").asText(" "));
+            }
+            // ✅ EmailId address
+            JsonNode emailArray = root.path("personInformation").path("emailAddresses");
+            if (emailArray.isArray() && emailArray.size() > 0) {
+                user.setEmailId(emailArray.get(0).path("address").asText(" "));
+            }
+
+
+
+
+            return user;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user details", e);
+        }
+    }
+
+
+
+    public String getHostName() {
+        return getcheckHost();
+    }
+
+    public String getFindPersonKey() {
+        return QueryFileWatcher.getQuery("getPersonKeyEmpWFD");
+    }
+
+
+    public String getUrlToCreateBS() {
+        return QueryFileWatcher.getQuery("getUrlToCreateBS");
+    }
+
+    public String getUpdateSkillURL() {
+        return QueryFileWatcher.getQuery("getUpdateSkillURLWFD");
+    }
+
+    public String getCheckLocationUrl() {
+        return QueryFileWatcher.getQuery("getCkeckLoaction");
+    }
+
+    public String getCreateEmpWFD() {
+        return QueryFileWatcher.getQuery("CreateEmpWFD");
+    }
+
+    public String getUpateEmpWFD() {
+        return QueryFileWatcher.getQuery("UpdateEmpWFD");
+    }
+
+    public String getUpdatePUNCHEMPWFD() {
+        return QueryFileWatcher.getQuery("UpdatePUNCHEMPWFD");
+    }
+
+    public String addEmployeePunchFace(PunchRequestDTO dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getUpdatePUNCHEMPWFD();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            int status = response.getStatusCodeValue();
+
+            return "STATUS:" + status +
+                    "\nBODY:" + response.getBody();
+
+        }catch (HttpServerErrorException | HttpClientErrorException e) {
+
+                int status =
+                        ((HttpStatusCodeException)e)
+                                .getStatusCode()
+                                .value();
+
+                return "STATUS:" + status +
+                        "\nBODY:" +
+                        ((HttpStatusCodeException)e)
+                                .getResponseBodyAsString();
+
+        }catch (Exception e) {
+
+                return "STATUS:500\nBODY:Error updating employee in WFD API: "
+                        + e.getMessage();
+            }
+        }
+    public String addEmployeePunchFaceSchedulr(PunchRequestCommentDTO dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getUpdatePUNCHEMPWFD();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            int status = response.getStatusCodeValue();
+
+            return "STATUS:" + status +
+                    "\nBODY:" + response.getBody();
+
+        }catch (HttpServerErrorException | HttpClientErrorException e) {
+
+                int status =
+                        ((HttpStatusCodeException)e)
+                                .getStatusCode()
+                                .value();
+
+                return "STATUS:" + status +
+                        "\nBODY:" +
+                        ((HttpStatusCodeException)e)
+                                .getResponseBodyAsString();
+
+        }catch (Exception e) {
+
+                return "STATUS:500\nBODY:Error updating employee in WFD API: "
+                        + e.getMessage();
+            }
+        }
+
+    public String createEmployee(EmployeeRequestDTO dto) {
+        try {
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+            System.out.println(jsonBody);
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10 = this.getHostName();
+            String url = var10 + this.getCreateEmpWFD();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            int var11 = response.getStatusCodeValue();
+            return "STATUS:" + var11 + "\nBODY:" + (String)response.getBody();
+        } catch (HttpServerErrorException | HttpClientErrorException e) {
+            int var10000 = ((HttpStatusCodeException)e).getStatusCode().value();
+            return "STATUS:" + var10000 + "\nBODY:" + ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "STATUS:500\nBODY:Error creating employee in WFD API: " + e.getMessage();
+        }
+    }
+
+    public String updateEmployee(UpdateEmployeeRequestDTO dto) {
+        try {
+
+            String jsonBody = this.objectMapper.writeValueAsString(dto);
+
+
+            String accessToken = this.wfdAuthService.getAccessToken();
+
+
+            Integer personKey = this.getPersonKey(
+                    accessToken,
+                    dto.getPersonInformation()
+                            .getPerson()
+                            .getPersonNumber()
+            );
+
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity =
+                    new HttpEntity<>(jsonBody, headers);
+
+
+            String url = this.getHostName()
+                    + this.getUpateEmpWFD()
+                    + personKey;
+
+
+            ResponseEntity<String> response =
+                    this.restTemplate.exchange(
+                            url,
+                            HttpMethod.PUT,
+                            entity,
+                            String.class
+                    );
+
+            int status = response.getStatusCodeValue();
+
+            return "STATUS:" + status +
+                    "\nBODY:" + response.getBody();
+
+        }
+        catch (HttpServerErrorException | HttpClientErrorException e) {
+
+            int status =
+                    ((HttpStatusCodeException)e)
+                            .getStatusCode()
+                            .value();
+
+            return "STATUS:" + status +
+                    "\nBODY:" +
+                    ((HttpStatusCodeException)e)
+                            .getResponseBodyAsString();
+
+        }
+        catch (Exception e) {
+
+            return "STATUS:500\nBODY:Error updating employee in WFD API: "
+                    + e.getMessage();
+        }
+    }
+
+
+    public Integer getPersonKey(String accessToken, String personNumber) {
+        try {
+            String jsonBody = "{\n  \"where\": {\n    \"employees\": {\n      \"key\": \"personnumber\",\n      \"values\": [\"" + personNumber + "\"]\n    }\n  }\n}";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getFindPersonKey();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            JsonNode root = this.objectMapper.readTree((String)response.getBody());
+            JsonNode idsNode = root.path("ids");
+            if (idsNode.isArray() && idsNode.size() > 0) {
+                return idsNode.get(0).asInt();
+            } else {
+                throw new RuntimeException("No ID found in response: " + (String)response.getBody());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching person key from WFD API", e);
+        }
+    }
+
+    public Integer getPersonKeyApi( String personNumber) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+            String jsonBody = "{\n  \"where\": {\n    \"employees\": {\n      \"key\": \"personnumber\",\n      \"values\": [\"" + personNumber + "\"]\n    }\n  }\n}";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getFindPersonKey();
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class, new Object[0]);
+            JsonNode root = this.objectMapper.readTree((String)response.getBody());
+            JsonNode idsNode = root.path("ids");
+            if (idsNode.isArray() && idsNode.size() > 0) {
+                return idsNode.get(0).asInt();
+            } else {
+                throw new RuntimeException("No ID found in response: " + (String)response.getBody());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching person key from WFD API", e);
+        }
+    }
+
+
+    public Integer getPersonKeyBasedonUserName(String personNumber) {
+        try {
+            String jsonBody = "{\n  \"where\": {\n    \"employees\": {\n      \"key\": \"userName\",\n      \"values\": [\"" + personNumber + "\"]\n    }\n  }\n}";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String accessToken = this.wfdAuthService.getAccessToken();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            String url = this.getHostName() + this.getFindPersonKey();
+
+            ResponseEntity<String> response =
+                    this.restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+            JsonNode root = this.objectMapper.readTree(response.getBody());
+            JsonNode idsNode = root.path("ids");
+
+            if (idsNode.isArray() && idsNode.size() > 0) {
+                return idsNode.get(0).asInt();
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    public String addPersonSkill(String personNumber, String skill, String proficiencyLevel, String effectiveDate) {
+        try {
+            String accessToken = this.wfdAuthService.getAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            Integer personKey = this.getPersonKey(accessToken, personNumber);
+            String jsonBody = "{\n  \"assignments\": [\n    {\n      \"skill\": {\n        \"qualifier\": \"" + skill + "\"\n      },\n      \"proficiencyLevel\": {\n        \"qualifier\": \"" + proficiencyLevel + "\"\n      },\n      \"effectiveDate\": \"" + effectiveDate + "\",\n      \"active\": true\n    }\n  ]\n}";
+            HttpEntity<String> entity = new HttpEntity(jsonBody, headers);
+            String var10000 = this.getHostName();
+            String url = var10000 + this.getUpdateSkillURL() + personKey;
+            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, new Object[0]);
+            return response.getStatusCode().is2xxSuccessful() ? "Skill Assigned Successfully" : (String)response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ((HttpStatusCodeException)e).getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error assigning skill: " + e.getMessage();
+        }
+    }
+
+
+    public boolean checkLocationInUKG(String path) {
+        try {
+
+
+            String encodedPath = path
+//                    .replace(" ", "%20")
+                    .replace("&", "%26");
+
+            String accessToken = this.wfdAuthService.getAccessToken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+
+            String url = this.getHostName()
+                    + this.getCheckLocationUrl()
+                    + encodedPath
+                    + "&date=1900-01-01&context=ORG";
+
+            System.out.println("Final URL: " + url);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = this.restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+
+            return response.getStatusCode().is2xxSuccessful();
+
+        } catch (HttpClientErrorException ex) {
+
+            String error = ex.getResponseBodyAsString();
+            System.out.println("Error: " + error);
+
+            if (ex.getStatusCode().value() == 400 && error != null) {
+
+                if (error.contains("does not exist")) {
+                    return false;
+                }
+
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error checking location in UKG", e);
+        }
+    }
+
+    public void createNodeInUKG(String parentPath, String name, String type) {
+
+        String accessToken = wfdAuthService.getAccessToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(accessToken);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("parentNodeRef", Map.of("qualifier", parentPath));
+        body.put("orgNodeTypeRef", Map.of("qualifier", type));
+        body.put("name", name);
+        body.put("effectiveDate", "1900-01-01");
+        body.put("expirationDate", "3000-01-01");
+
+        if ("Job".equals(type)) {
+            body.put("genericJobRef", Map.of("qualifier", name));
+        }
+
+
+        HttpEntity<List<Map<String, Object>>> entity =
+                new HttpEntity<>(List.of(body), headers);
+
+        restTemplate.exchange(
+                getHostName() + getUrlToCreateBS(),
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+    }
+
+
+
+}
