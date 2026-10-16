@@ -1433,12 +1433,16 @@ public class GatePassToOnBoardService {
 
         switch (level) {
             case 0: return "Business Entity";
-            case 1: return "Location";
-            case 2: return "Department";
-            case 3: return "Area";
-            case 4: return "Contractor";
-            case 5: return "Job";
-            default: return "Job";
+            case 1: return "Business Unit";
+            case 2: return "Line Of Business";
+            case 3: return "Subline of Business";
+            case 4: return "Legal Entity";
+            case 5: return "Location";
+            case 6: return "Department";
+            case 7: return "Area";
+            case 8: return "Contractor";
+            case 9: return "Job";
+            default: return "Job  ";
         }
     }
 
