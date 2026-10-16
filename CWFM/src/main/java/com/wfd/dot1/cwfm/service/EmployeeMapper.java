@@ -941,27 +941,27 @@ public class EmployeeMapper {
                     permanentDistrict.setText(individualOnBoardDetailsByTrnId.getWorkmenType());
                     addCustomeList.add(permanentDistrict);
                 }
-                if (individualOnBoardDetailsByTrnId.getWorkmenType() != null && !individualOnBoardDetailsByTrnId.getWorkmenType().isEmpty()) {
+                if (individualOnBoardDetailsByTrnId.getOnboardingType() != null && !individualOnBoardDetailsByTrnId.getOnboardingType().isEmpty()) {
                     EmployeeRequestDTO.CustomDataDTO permanentDistrict = new EmployeeRequestDTO.CustomDataDTO();
                     permanentDistrict.setCustomDataTypeName("Onboarding Type");
                     permanentDistrict.setText(individualOnBoardDetailsByTrnId.getOnboardingType());
                     addCustomeList.add(permanentDistrict);
                 }
 
-                if (individualOnBoardDetailsByTrnId.getWorkmenType() != null && !individualOnBoardDetailsByTrnId.getWorkmenType().isEmpty()) {
+                if (individualOnBoardDetailsByTrnId.getESICIPNumber() != null && !individualOnBoardDetailsByTrnId.getESICIPNumber().isEmpty()) {
                     EmployeeRequestDTO.CustomDataDTO permanentDistrict = new EmployeeRequestDTO.CustomDataDTO();
                     permanentDistrict.setCustomDataTypeName("ESIC IP Number");
                     permanentDistrict.setText(individualOnBoardDetailsByTrnId.getESICIPNumber());
                     addCustomeList.add(permanentDistrict);
                 }
-                if (individualOnBoardDetailsByTrnId.getWorkmenType() != null && !individualOnBoardDetailsByTrnId.getWorkmenType().isEmpty()) {
+                if (individualOnBoardDetailsByTrnId.getAccommodation() != null && !individualOnBoardDetailsByTrnId.getAccommodation().isEmpty()) {
                     EmployeeRequestDTO.CustomDataDTO permanentDistrict = new EmployeeRequestDTO.CustomDataDTO();
                     permanentDistrict.setCustomDataTypeName("Accommodation");
                     permanentDistrict.setText(individualOnBoardDetailsByTrnId.getAccommodation());
                     addCustomeList.add(permanentDistrict);
                 }
 
-                if (individualOnBoardDetailsByTrnId.getWorkmenType() != null && !individualOnBoardDetailsByTrnId.getWorkmenType().isEmpty()) {
+                if (individualOnBoardDetailsByTrnId.getIdMark() != null && !individualOnBoardDetailsByTrnId.getIdMark().isEmpty()) {
                     EmployeeRequestDTO.CustomDataDTO permanentDistrict = new EmployeeRequestDTO.CustomDataDTO();
                     permanentDistrict.setCustomDataTypeName("Identification Mark");
                     permanentDistrict.setText(individualOnBoardDetailsByTrnId.getIdMark());
